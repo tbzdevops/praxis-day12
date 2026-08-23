@@ -14,16 +14,19 @@ Workflow; Auftrag 4 ist eine Analyseuebung.
 
 ## Ordnerstruktur
 
-Die leeren Ordner geben die erwartete Struktur vor. Halte dich daran —
-die automatische Pruefung sucht die Dateien genau dort.
+Alle Dateien gehoeren ins **Wurzel-Verzeichnis** dieses Repos bzw. in
+`.github/workflows/` — nur dort fuehrt GitHub Actions Workflows aus. Lege
+keine Unterordner pro Auftrag an; die automatische Pruefung sucht die
+Dateien genau hier.
 
 ```
-tag13/auftrag01-ai-assisted/utils/
-tag13/auftrag01-ai-assisted/tests/
-tag13/auftrag02-spec-adr/specs/
-tag13/auftrag02-spec-adr/docs/adr/
-tag13/auftrag02-spec-adr/tests/
-tag13/auftrag03-ai-cicd/.github/workflows/
+utils/                            # Auftrag 1: dein Modul (z. B. validators.py)
+tests/                            # Auftrag 1 + 2: pytest-Tests
+specs/                            # Auftrag 2: die Spec
+docs/adr/                         # Auftrag 2: der ADR
+discounts/                        # Auftrag 2: die Implementierung zur Spec
+.github/workflows/ai-review.yml   # Auftrag 3: AI-Review bei Pull Requests
+DOKUMENTATION.md                  # Auftrag 4: Prompt Injection
 ```
 
 ## Aufgaben
@@ -32,10 +35,8 @@ tag13/auftrag03-ai-cicd/.github/workflows/
 
 Lass dir Code von einem AI-Assistenten erzeugen und pruefe ihn kritisch.
 
-- Implementiere unter `tag13/auftrag01-ai-assisted/utils/` ein Python-Modul
-  (z. B. `validators.py`).
-- Schreibe dazu pytest-Tests unter
-  `tag13/auftrag01-ai-assisted/tests/test_validators.py`.
+- Implementiere unter `utils/` ein Python-Modul (z. B. `validators.py`).
+- Schreibe dazu pytest-Tests unter `tests/test_validators.py`.
 - Dokumentiere, welche Schwaechen der AI-Vorschlag hatte und was du
   korrigiert hast.
 
@@ -43,17 +44,16 @@ Lass dir Code von einem AI-Assistenten erzeugen und pruefe ihn kritisch.
 
 Erst spezifizieren, dann implementieren, Entscheidung festhalten.
 
-- Schreibe eine Spec unter `tag13/auftrag02-spec-adr/specs/<thema>.md` mit
-  den Abschnitten Ziel, Anforderungen, Akzeptanzkriterien und Out of Scope.
-- Implementiere die Spec und decke sie mit Tests unter
-  `tag13/auftrag02-spec-adr/tests/` ab.
-- Halte die Entscheidung als ADR unter
-  `tag13/auftrag02-spec-adr/docs/adr/0001-<thema>.md` fest
+- Schreibe eine Spec unter `specs/<thema>.md` mit den Abschnitten Ziel,
+  Anforderungen, Akzeptanzkriterien und Out of Scope.
+- Implementiere die Spec (z. B. `discounts/validator.py`) und decke sie mit
+  Tests unter `tests/` ab.
+- Halte die Entscheidung als ADR unter `docs/adr/0001-<thema>.md` fest
   (Status, Kontext, Entscheidung, Konsequenzen).
 
 ### Auftrag 3 — AI in der CI/CD-Pipeline: automatisches PR-Feedback
 
-- Lege `tag13/auftrag03-ai-cicd/.github/workflows/ai-review.yml` an.
+- Lege `.github/workflows/ai-review.yml` an.
 - Der Workflow reagiert auf `pull_request` und ruft ein AI-Modell auf
   (z. B. die GitHub Models API).
 - Das Feedback wird als Kommentar oder Actions Summary ausgegeben.
@@ -63,7 +63,7 @@ Erst spezifizieren, dann implementieren, Entscheidung festhalten.
 Analyseuebung ohne eigenen Code.
 
 - Fuehre einen Prompt-Injection-Angriff gegen deinen AI-Schritt durch.
-- Dokumentiere in `tag13/README.md`, wie der Angriff funktioniert hat und
+- Dokumentiere in `DOKUMENTATION.md`, wie der Angriff funktioniert hat und
   welche Gegenmassnahmen du ergreifen wuerdest.
 
 ## Abnahmekriterien
@@ -77,20 +77,20 @@ nichts von Hand pflegen — beim naechsten Push wird die Liste ueberschrieben.
 **Fortschritt: 0 / 14 Kriterien erfüllt** ⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ — Stand: 2026-08-23 22:08 UTC.
 <!-- /c50:progress -->
 
-- [ ] ⬜ Aufgabe 1: Python-Modul unter tag13/auftrag01-ai-assisted/ vorhanden
+- [ ] ⬜ Aufgabe 1: Python-Modul unter utils/ vorhanden
 - [ ] ⬜ Aufgabe 1: pytest-Tests vorhanden (tests/test_*.py)
 - [ ] ⬜ Aufgabe 1: Tests enthalten mindestens einen Testfall (def test_)
-- [ ] ⬜ Aufgabe 2: Spec vorhanden (tag13/auftrag02-spec-adr/specs/*.md)
+- [ ] ⬜ Aufgabe 2: Spec vorhanden (specs/*.md)
 - [ ] ⬜ Aufgabe 2: Spec nennt Ziel, Anforderungen und Akzeptanzkriterien
 - [ ] ⬜ Aufgabe 2: Architecture Decision Record vorhanden (docs/adr/*.md)
 - [ ] ⬜ Aufgabe 2: ADR nennt Status, Kontext, Entscheidung und Konsequenzen
 - [ ] ⬜ Aufgabe 2: Implementierung mit Tests zur Spec vorhanden
-- [ ] ⬜ Aufgabe 3: AI-Workflow vorhanden (tag13/auftrag03-ai-cicd/.github/workflows/)
+- [ ] ⬜ Aufgabe 3: AI-Workflow vorhanden (.github/workflows/)
 - [ ] ⬜ Aufgabe 3: AI-Modell wird im Workflow aufgerufen
 - [ ] ⬜ Aufgabe 3: Workflow reagiert auf Pull Requests
-- [ ] ⬜ Aufgabe 4: tag13/README.md vorhanden
+- [ ] ⬜ Aufgabe 4: DOKUMENTATION.md vorhanden
 - [ ] ⬜ Aufgabe 4: Prompt Injection dokumentiert (Angriff und Verteidigung)
-- [ ] ⬜ Aufgabe 4: tag13/README.md hat ausreichend Inhalt (mind. 100 Wörter)
+- [ ] ⬜ Aufgabe 4: DOKUMENTATION.md hat ausreichend Inhalt (mind. 100 Wörter)
 
 Zusaetzlich manuell abgenommen (nicht automatisch geprueft):
 
@@ -124,5 +124,5 @@ letzter Run → Job *Abnahmekriterien pruefen*.
 ## Musterloesung
 
 Nach dem Unterricht findest du die Musterloesung im Repository
-[`tbzdevops/musterloesungen-praxisauftraege`](https://github.com/tbzdevops/musterloesungen-praxisauftraege/tree/day_13_solution/tag13)
+[`tbzdevops/musterloesungen-praxisauftraege`](https://github.com/tbzdevops/musterloesungen-praxisauftraege/tree/day_13_solution)
 auf dem Branch `day_13_solution`.
