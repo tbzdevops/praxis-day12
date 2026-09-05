@@ -1,5 +1,5 @@
 #!/bin/bash
-# PRAXIS Tag 13 — AI in DevOps. Geprüft wird das Wurzel-Verzeichnis: Code und
+# PRAXIS Tag 12 — AI in DevOps. Geprüft wird das Wurzel-Verzeichnis: Code und
 # Workflow liegen dort, wo sie im echten Repo auch liegen (.github/workflows/).
 source .github/classroom/grade.sh
 
@@ -20,7 +20,7 @@ solution_for_id() {
   esac
 }
 
-echo "🔍 Prüfe Abnahmekriterien für Tag 13 Praxis — AI in DevOps"
+echo "🔍 Prüfe Abnahmekriterien für Tag 12 Praxis — AI in DevOps"
 echo ""
 
 WF=.github/workflows
@@ -99,4 +99,4 @@ check "praxis-doku" \
   "Aufgabe 4: DOKUMENTATION.md hat ausreichend Inhalt (mind. 100 Wörter)" \
   "[ \$(wc -w < $DOKU 2>/dev/null) -ge 100 ]"
 
-summary 13
+summary 12

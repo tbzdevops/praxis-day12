@@ -1,7 +1,7 @@
-# Tag 13 Praxis — AI in DevOps
+# Tag 12 Praxis — AI in DevOps
 
 > **Praxisauftraege.** Dieses Repository ist dein Arbeitsplatz fuer die
-> Praxis-Uebungen von Tag 13. Es enthaelt bewusst nur das Geruest —
+> Praxis-Uebungen von Tag 12. Es enthaelt bewusst nur das Geruest —
 > jede Datei schreibst du selbst.
 
 ## Ausgangslage
@@ -108,7 +108,7 @@ Das Skript liest die Tagesnummer aus `.classroom50.yaml`. Du kannst sie
 auch erzwingen:
 
 ```bash
-CLASSROOM_DAY=13 bash .github/classroom/grade.sh
+CLASSROOM_DAY=12 bash .github/classroom/grade.sh
 ```
 
 Die Ausgabe listet jedes Kriterium mit ✅ oder ❌ und nennt bei jedem ❌
@@ -128,5 +128,5 @@ erfuellt sind — Teilpunkte gibt es aber ab dem ersten.
 ## Musterloesung
 
 Nach dem Unterricht findest du die Musterloesung im Repository
-[`tbzdevops/musterloesungen-praxisauftraege`](https://github.com/tbzdevops/musterloesungen-praxisauftraege/tree/day_13_solution)
-auf dem Branch `day_13_solution`.
+[`tbzdevops/musterloesungen-praxisauftraege`](https://github.com/tbzdevops/musterloesungen-praxisauftraege/tree/day_12_solution)
+auf dem Branch `day_12_solution`.
