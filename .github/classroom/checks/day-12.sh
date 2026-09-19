@@ -1,102 +1,122 @@
 #!/bin/bash
-# PRAXIS Tag 12 — AI in DevOps. Geprüft wird das Wurzel-Verzeichnis: Code und
-# Workflow liegen dort, wo sie im echten Repo auch liegen (.github/workflows/).
+# PRAXIS Tag 12 — AI in DevOps (eine Lektion).
+# Nicht zu verwechseln mit dem gleichnamigen Projekt-Check im Repository
+# techstyle. Geprüft wird das Wurzel-Verzeichnis: Spec, Code und Tests liegen
+# dort, wo sie im echten Repo auch liegen.
 source .github/classroom/grade.sh
+
+DOKU=DOKUMENTATION.md
+
+# pytest wird für "Tests laufen grün" gebraucht. Auf ubuntu-latest fehlt es,
+# und pip darf dort nicht ins System-Python installieren — deshalb ein
+# eigenes Wegwerf-Venv. Lokal ist pytest oft schon vorhanden.
+PYTHON=python3
+if ! "$PYTHON" -m pytest --version >/dev/null 2>&1; then
+  VENV="${RUNNER_TEMP:-${TMPDIR:-/tmp}}/tag12-praxis-venv"
+  [ -x "$VENV/bin/python" ] || python3 -m venv "$VENV" >/dev/null 2>&1
+  "$VENV/bin/python" -m pip install --quiet --disable-pip-version-check pytest >/dev/null 2>&1 \
+    && PYTHON="$VENV/bin/python"
+fi
+
+# Gibt den Text eines Auftrags-Abschnitts aus DOKUMENTATION.md aus — ohne
+# HTML-Kommentare und ohne <Platzhalter>. Mit --raw bleiben die Platzhalter
+# drin (für die Platzhalter-Prüfung).
+# Aufruf: doku_section <nr> [--raw]
+doku_section() {
+  python3 - "$DOKU" "$1" "${2:-}" <<'PY'
+import re, sys
+
+path, nr, raw = sys.argv[1], sys.argv[2], sys.argv[3] == "--raw"
+# Gleiche Form wie in has_placeholder.
+PLACEHOLDER = r"<[A-Za-zÄÖÜäöü.][^<>\n]*(?:\s|\.\.\.|/)[^<>\n]*>"
+try:
+    text = open(path, encoding="utf-8").read()
+except OSError:
+    sys.exit(1)
+text = re.sub(r"<!--.*?-->", "", text, flags=re.S)
+m = re.search(rf"^##\s+Auftrag\s+{nr}\b.*?(?=^##\s+Auftrag\s+\d|\Z)", text, flags=re.S | re.M | re.I)
+if not m:
+    sys.exit(1)
+section = m.group(0)
+if not raw:
+    section = re.sub(PLACEHOLDER, "", section)
+print(section)
+PY
+}
+
+# Ein Platzhalter beginnt mit einem Buchstaben oder Punkt und enthält ein
+# Leerzeichen, "..." oder "/" — z. B. <Name 1>, <...>, <ja/nein>. Nicht
+# gemeint sind Tags wie <diff> oder </diff> und Vergleiche wie "x < 6".
+has_placeholder() { grep -qE '<[[:alpha:].][^<>]*([[:space:]]|\.\.\.|/)[^<>]*>'; }
+
+# Anzahl Wörter ausserhalb von Überschriften und Tabellenköpfen.
+words() { grep -vE '^[[:space:]]*(#|\|[[:space:]-]*\||$)' | wc -w; }
 
 solution_for_id() {
   case "$1" in
-    ai-code) echo "Lege utils/validators.py mit der geprüften Funktion an" ;;
-    ai-tests) echo "Lege tests/test_validators.py mit pytest-Tests an" ;;
-    spec) echo "Lege specs/<thema>.md mit Ziel, Anforderungen und Akzeptanzkriterien an" ;;
-    spec-content) echo "Ergänze in der Spec die Abschnitte Ziel, Anforderungen, Akzeptanzkriterien und Out of Scope" ;;
-    adr) echo "Lege docs/adr/0001-<thema>.md an (Status, Kontext, Entscheidung, Konsequenzen)" ;;
-    adr-content) echo "Der ADR braucht die Abschnitte Status, Kontext, Entscheidung und Konsequenzen" ;;
-    spec-impl) echo "Implementiere die Spec (z. B. discounts/validator.py) inklusive Tests unter tests/" ;;
-    ai-workflow) echo "Lege .github/workflows/ai-review.yml an" ;;
-    ai-api) echo "Rufe im Workflow ein AI-Modell auf (z. B. models.inference.ai.azure.com oder GitHub Models)" ;;
-    ai-pr) echo "Der Workflow soll auf pull_request reagieren und Feedback zurückgeben" ;;
-    praxis-doku) echo "Lege DOKUMENTATION.md im Wurzel-Verzeichnis an und dokumentiere Prompt Injection (Angriff + Verteidigung, mind. 100 Wörter)" ;;
+    spec)
+      echo "Lege die Spec unter specs/rabattcode.md an (Vorlage in der Tagesplanung, Auftrag 1 Teil A)." ;;
+    spec-content)
+      echo "Die Spec braucht die vier Abschnitte Ziel, Anforderungen, Akzeptanzkriterien und Out of Scope — als Überschriften (## Ziel usw.)." ;;
+    impl)
+      echo "Lege die von der AI generierte Implementierung unter discounts/validator.py ab (plus leere discounts/__init__.py)." ;;
+    tests)
+      echo "Lege tests/test_discount.py an und übernimm jedes Akzeptanzkriterium der Spec als eigene Funktion def test_...()." ;;
+    pytest)
+      echo "Führe lokal 'python3 -m pytest -q' aus und behebe die roten Tests. Fehlt discounts/__init__.py, findet pytest das Modul nicht." ;;
+    a1-doku)
+      echo "Fülle in DOKUMENTATION.md den Abschnitt 'Auftrag 1' aus: was die AI übersehen hat, was du korrigiert hast, was die Spec verändert hat. Alle <Platzhalter> ersetzen, mindestens 40 Wörter." ;;
+    a2-table)
+      echo "Fülle in DOKUMENTATION.md die Tabelle im Abschnitt 'Auftrag 2' aus: je Angriff ja/nein ohne und mit Härtung. Alle <Platzhalter> ersetzen." ;;
+    a2-prompt)
+      echo "Trage im Abschnitt 'Auftrag 2' deinen gehärteten System-Prompt als Codeblock (zwischen zwei Zeilen mit drei Backticks) ein — mindestens 20 Wörter." ;;
+    a2-transfer)
+      echo "Beantworte im Abschnitt 'Auftrag 2' die Transfer-Frage: wie ein Angreifer einen AI-Review-Bot über den Diff eines Pull Requests manipulieren kann und was dagegen hilft. Das Wort 'Diff' muss vorkommen." ;;
     *) echo "Überprüfe die Aufgabenstellung im README" ;;
   esac
 }
 
 echo "🔍 Prüfe Abnahmekriterien für Tag 12 Praxis — AI in DevOps"
 echo ""
-
-WF=.github/workflows
-DOKU=DOKUMENTATION.md
-
-# classroom.yml gehoert zur Bewertung und darf kein Kriterium erfuellen.
-own_wf() { ls $WF/*.yml $WF/*.yaml 2>/dev/null | grep -v '/classroom\.yml$'; }
-# Der AI-Review-Workflow, erkennbar am Modell-Aufruf.
-ai_wf() { own_wf | xargs -r grep -lEi 'models\.inference|github models|openai|gpt-|claude|llm' 2>/dev/null; }
-AI_FILES="$(ai_wf | tr '\n' ' ')/dev/null"
-
-echo "── Aufgabe 1: AI-Assisted Development ──"
-
-check "ai-code" \
-  "Aufgabe 1: Python-Modul unter utils/ vorhanden" \
-  "ls utils/*.py 2>/dev/null | grep -q ."
-
-check "ai-tests" \
-  "Aufgabe 1: pytest-Tests vorhanden (tests/test_*.py)" \
-  "ls tests/test_*.py 2>/dev/null | grep -q ."
-
-check "ai-tests" \
-  "Aufgabe 1: Tests enthalten mindestens einen Testfall (def test_)" \
-  "grep -rqE '^def test_' tests/ 2>/dev/null"
-
-echo ""
-echo "── Aufgabe 2: Spec-Driven Development und ADR ──"
+echo "── Auftrag 1: Spec-Driven Development mit AI ──"
 
 check "spec" \
-  "Aufgabe 2: Spec vorhanden (specs/*.md)" \
+  "Auftrag 1: Spec vorhanden (specs/*.md)" \
   "ls specs/*.md 2>/dev/null | grep -q ."
 
 check "spec-content" \
-  "Aufgabe 2: Spec nennt Ziel, Anforderungen und Akzeptanzkriterien" \
-  "grep -rqiE 'ziel' specs/ 2>/dev/null && grep -rqiE 'anforderung' specs/ 2>/dev/null && grep -rqiE 'akzeptanzkriterien' specs/ 2>/dev/null"
+  "Auftrag 1: Spec nennt Ziel, Anforderungen, Akzeptanzkriterien und Out of Scope" \
+  "grep -qiE '^#+[[:space:]]*ziel' specs/*.md && grep -qiE '^#+[[:space:]]*anforderung' specs/*.md && grep -qiE '^#+[[:space:]]*akzeptanzkriterien' specs/*.md && grep -qiE '^#+[[:space:]]*out.of.scope' specs/*.md"
 
-check "adr" \
-  "Aufgabe 2: Architecture Decision Record vorhanden (docs/adr/*.md)" \
-  "ls docs/adr/*.md 2>/dev/null | grep -q ."
+check "impl" \
+  "Auftrag 1: Implementierung zur Spec vorhanden (discounts/*.py)" \
+  "ls discounts/*.py 2>/dev/null | grep -v '/__init__\.py$' | grep -q ."
 
-check "adr-content" \
-  "Aufgabe 2: ADR nennt Status, Kontext, Entscheidung und Konsequenzen" \
-  "grep -rqiE 'status' docs/adr/ 2>/dev/null && grep -rqiE 'kontext' docs/adr/ 2>/dev/null && grep -rqiE 'entscheidung' docs/adr/ 2>/dev/null && grep -rqiE 'konsequenz' docs/adr/ 2>/dev/null"
+check "tests" \
+  "Auftrag 1: Tests zu den Akzeptanzkriterien vorhanden (tests/test_*.py mit def test_)" \
+  "grep -qE '^[[:space:]]*def test_' tests/test_*.py"
 
-check "spec-impl" \
-  "Aufgabe 2: Implementierung mit Tests zur Spec vorhanden" \
-  "ls tests/test_*.py 2>/dev/null | grep -q . && ls discounts/*.py utils/*.py 2>/dev/null | grep -q ."
+check "pytest" \
+  "Auftrag 1: Tests laufen grün (pytest)" \
+  "ls tests/test_*.py 2>/dev/null | grep -q . && \"\$PYTHON\" -m pytest -q -p no:cacheprovider tests/"
 
-echo ""
-echo "── Aufgabe 3: AI in der CI/CD-Pipeline ──"
-
-check "ai-workflow" \
-  "Aufgabe 3: AI-Workflow vorhanden (.github/workflows/)" \
-  "ai_wf | grep -q ."
-
-check "ai-api" \
-  "Aufgabe 3: AI-Modell wird im Workflow aufgerufen" \
-  "grep -qiE 'models\.inference|github models|openai|gpt-|claude|llm' $AI_FILES"
-
-check "ai-pr" \
-  "Aufgabe 3: Workflow reagiert auf Pull Requests" \
-  "grep -qE 'pull_request' $AI_FILES"
+check "a1-doku" \
+  "Auftrag 1: Review des AI-Outputs dokumentiert (DOKUMENTATION.md, ohne Platzhalter, mind. 40 Wörter)" \
+  "! doku_section 1 --raw | has_placeholder && [ \$(doku_section 1 | words) -ge 40 ]"
 
 echo ""
-echo "── Aufgabe 4: Prompt Injection ──"
+echo "── Auftrag 2: Prompt Injection ──"
 
-check_file_exists "praxis-doku" \
-  "Aufgabe 4: DOKUMENTATION.md vorhanden" \
-  "$DOKU"
+check "a2-table" \
+  "Auftrag 2: Ergebnis je Angriff dokumentiert (ohne Platzhalter, ja/nein)" \
+  "doku_section 2 --raw >/dev/null && ! doku_section 2 --raw | has_placeholder && doku_section 2 | grep -qiwE 'ja|nein'"
 
-check "praxis-doku" \
-  "Aufgabe 4: Prompt Injection dokumentiert (Angriff und Verteidigung)" \
-  "grep -qiE 'prompt.?injection' $DOKU 2>/dev/null"
+check "a2-prompt" \
+  "Auftrag 2: Gehärteter System-Prompt als Codeblock (mind. 20 Wörter)" \
+  "[ \$(doku_section 2 | awk '/^[[:space:]]*\`\`\`/{f=!f; next} f' | wc -w) -ge 20 ]"
 
-check "praxis-doku" \
-  "Aufgabe 4: DOKUMENTATION.md hat ausreichend Inhalt (mind. 100 Wörter)" \
-  "[ \$(wc -w < $DOKU 2>/dev/null) -ge 100 ]"
+check "a2-transfer" \
+  "Auftrag 2: Transfer auf den AI-Review-Bot — Angriff über den PR-Diff beschrieben" \
+  "doku_section 2 | grep -vE '^[[:space:]]*#' | grep -qi 'diff'"
 
 summary 12

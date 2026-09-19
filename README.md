@@ -1,70 +1,94 @@
 # Tag 12 Praxis — AI in DevOps
 
 > **Praxisauftraege.** Dieses Repository ist dein Arbeitsplatz fuer die
-> Praxis-Uebungen von Tag 12. Es enthaelt bewusst nur das Geruest —
-> jede Datei schreibst du selbst.
+> Praxis-Uebungen von Tag 12. Es enthaelt nur das Geruest und die Vorlage
+> `DOKUMENTATION.md` — Spec, Code und Tests schreibst du selbst.
 
 ## Ausgangslage
 
-AI entlang der DevOps-Kette: AI-Assisted Development (Auftrag 1),
-Spec-Driven Development und ADR (Auftrag 2), AI in der CI/CD-Pipeline
-(Auftrag 3) und Prompt Injection (Auftrag 4). Auftraege 1 und 2 sind
-lauffaehiger, getesteter Python-Code; Auftrag 3 ist ein GitHub-Actions-
-Workflow; Auftrag 4 ist eine Analyseuebung.
+Die Praxis dauert **eine Lektion (45 Min)** und bereitet direkt das Projekt
+vor, in dem ihr einen AI-Review-Bot fuer TechStyle baut:
+
+| Auftrag | Zeit | Thema |
+| --- | --- | --- |
+| 1 | 25 Min | Spec-Driven Development: AI gegen eine Spec implementieren lassen und kritisch pruefen |
+| 2 | 15 Min | Prompt Injection: Angriff und Verteidigung |
+| Recap | 5 Min | Plenum |
+
+Die ausfuehrliche Aufgabenstellung steht in der Tagesplanung Tag 12.
 
 ## Ordnerstruktur
 
-Alle Dateien gehoeren ins **Wurzel-Verzeichnis** dieses Repos bzw. in
-`.github/workflows/` — nur dort fuehrt GitHub Actions Workflows aus. Lege
-keine Unterordner pro Auftrag an; die automatische Pruefung sucht die
-Dateien genau hier.
+Alle Dateien gehoeren ins **Wurzel-Verzeichnis** dieses Repos. Lege keine
+Unterordner pro Auftrag an; die automatische Pruefung sucht die Dateien
+genau hier.
 
 ```
-utils/                            # Auftrag 1: dein Modul (z. B. validators.py)
-tests/                            # Auftrag 1 + 2: pytest-Tests
-specs/                            # Auftrag 2: die Spec
-docs/adr/                         # Auftrag 2: der ADR
-discounts/                        # Auftrag 2: die Implementierung zur Spec
-.github/workflows/ai-review.yml   # Auftrag 3: AI-Review bei Pull Requests
-DOKUMENTATION.md                  # Auftrag 4: Prompt Injection
+specs/rabattcode.md          # Auftrag 1: die Spec (zuerst!)
+discounts/__init__.py        # Auftrag 1: leer, macht discounts/ zum Paket
+discounts/validator.py       # Auftrag 1: validate_discount_code (AI-generiert, von dir geprueft)
+tests/test_discount.py       # Auftrag 1: Akzeptanzkriterien + eigene Randfaelle als pytest-Tests
+DOKUMENTATION.md             # Auftrag 1 + 2: Review des AI-Outputs, Prompt Injection
 ```
+
+## Format der Abgabe-Dateien
+
+Der Autograder beurteilt **nicht**, ob deine Analyse fachlich stimmt — das
+macht die Lehrperson beim Durchsehen. Er prueft nur: liegen die Dateien am
+richtigen Ort, laufen die Tests gruen, und ist die Vorlage ausgefuellt?
+**Inhalt frei, Struktur verbindlich.**
+
+### `DOKUMENTATION.md`
+
+| Regel | Warum |
+| --- | --- |
+| Dateiname **exakt `DOKUMENTATION.md`**, alle Buchstaben gross | Der Pruef-Runner laeuft unter Linux — `Dokumentation.md` ist dort eine **andere** Datei. |
+| Die Ueberschriften `## Auftrag 1` und `## Auftrag 2` bleiben stehen | Die Pruefung liest jeden Abschnitt einzeln. |
+| Jeden `<Platzhalter>` ersetzen | Ein Abschnitt mit Platzhaltern gilt als nicht ausgefuellt. |
+
+**Abschnitt Auftrag 1:** mindestens 40 Woerter dazu, was die AI uebersehen
+hat, was du korrigiert hast und was die Spec veraendert hat.
+
+**Abschnitt Auftrag 2 — drei Pflichtangaben:**
+
+1. Die Tabelle: je Angriff `ja` oder `nein`, ohne und mit Haertung.
+2. Der gehaertete System-Prompt als **Codeblock** (mindestens 20 Woerter).
+3. Die Transfer-Antwort: wie ein Angreifer einen AI-Review-Bot ueber den
+   **Diff** eines Pull Requests manipulieren kann — das Wort `Diff` muss
+   vorkommen.
+
+### Spec und Tests
+
+- Die Spec unter `specs/` braucht die vier Ueberschriften `Ziel`,
+  `Anforderungen`, `Akzeptanzkriterien` und `Out of Scope`.
+- Die Implementierung liegt unter `discounts/`, die Tests unter
+  `tests/test_*.py`. Die Pruefung fuehrt `python3 -m pytest tests/` aus —
+  alle Tests muessen gruen sein.
 
 ## Aufgaben
 
-### Auftrag 1 — AI-Assisted Development: Code verstehen und kritisch pruefen
+### Auftrag 1 — Spec-Driven Development mit AI (25 Min)
 
-Lass dir Code von einem AI-Assistenten erzeugen und pruefe ihn kritisch.
+1. **Spec schreiben:** `specs/rabattcode.md` mit Ziel, Anforderungen,
+   Akzeptanzkriterien und Out of Scope (Vorlage in der Tagesplanung).
+2. **AI implementieren lassen:** Gib Copilot oder dem Playground von GitHub
+   Models die ganze Spec als Kontext und lass `discounts/validator.py`
+   generieren. Uebernimm jedes Akzeptanzkriterium als Test in
+   `tests/test_discount.py`.
+3. **Kritisch pruefen:** Teste Faelle, die nicht in der Spec stehen
+   (`"summer25"`, `" SUMMER25"`, `"SUMMER25!"`, 13 Zeichen, `None`) und
+   ergaenze dafuer Tests. Halte in `DOKUMENTATION.md` fest, was die AI
+   uebersehen hat und was du korrigiert hast.
 
-- Implementiere unter `utils/` ein Python-Modul (z. B. `validators.py`).
-- Schreibe dazu pytest-Tests unter `tests/test_validators.py`.
-- Dokumentiere, welche Schwaechen der AI-Vorschlag hatte und was du
-  korrigiert hast.
+### Auftrag 2 — Prompt Injection: Angriff und Verteidigung (15 Min)
 
-### Auftrag 2 — Spec-Driven Development und ADR
-
-Erst spezifizieren, dann implementieren, Entscheidung festhalten.
-
-- Schreibe eine Spec unter `specs/<thema>.md` mit den Abschnitten Ziel,
-  Anforderungen, Akzeptanzkriterien und Out of Scope.
-- Implementiere die Spec (z. B. `discounts/validator.py`) und decke sie mit
-  Tests unter `tests/` ab.
-- Halte die Entscheidung als ADR unter `docs/adr/0001-<thema>.md` fest
-  (Status, Kontext, Entscheidung, Konsequenzen).
-
-### Auftrag 3 — AI in der CI/CD-Pipeline: automatisches PR-Feedback
-
-- Lege `.github/workflows/ai-review.yml` an.
-- Der Workflow reagiert auf `pull_request` und ruft ein AI-Modell auf
-  (z. B. die GitHub Models API).
-- Das Feedback wird als Kommentar oder Actions Summary ausgegeben.
-
-### Auftrag 4 — Prompt Injection: Angriff und Verteidigung
-
-Analyseuebung ohne eigenen Code.
-
-- Fuehre einen Prompt-Injection-Angriff gegen deinen AI-Schritt durch.
-- Dokumentiere in `DOKUMENTATION.md`, wie der Angriff funktioniert hat und
-  welche Gegenmassnahmen du ergreifen wuerdest.
+1. **Angriff:** Setze im Playground von GitHub Models den System-Prompt des
+   TechStyle-Kundenservice-Bots und greife ihn mit drei Techniken an:
+   direkt, per Rollenspiel und mit einer versteckten Anweisung.
+2. **Verteidigung:** Haerte den System-Prompt und wiederhole die Angriffe.
+3. **Transfer:** Im Projekt baust du einen Bot, der den Diff eines Pull
+   Requests liest. Wie koennte ein Angreifer ihn ueber den Diff manipulieren,
+   und was hilft dagegen?
 
 ## Abnahmekriterien
 
@@ -74,27 +98,22 @@ sobald eine Aenderung es wieder bricht, verschwindet der Haken. Du musst hier
 nichts von Hand pflegen — beim naechsten Push wird die Liste ueberschrieben.
 
 <!-- c50:progress -->
-**Fortschritt: 0 / 14 Kriterien erfüllt** ⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ — Stand: 2026-08-24 21:16 UTC.
+**Fortschritt: 0 / 9 Kriterien erfüllt** ⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ — Stand: 2026-09-19 14:23 UTC.
 <!-- /c50:progress -->
 
-- [ ] ⬜ Aufgabe 1: Python-Modul unter utils/ vorhanden
-- [ ] ⬜ Aufgabe 1: pytest-Tests vorhanden (tests/test_*.py)
-- [ ] ⬜ Aufgabe 1: Tests enthalten mindestens einen Testfall (def test_)
-- [ ] ⬜ Aufgabe 2: Spec vorhanden (specs/*.md)
-- [ ] ⬜ Aufgabe 2: Spec nennt Ziel, Anforderungen und Akzeptanzkriterien
-- [ ] ⬜ Aufgabe 2: Architecture Decision Record vorhanden (docs/adr/*.md)
-- [ ] ⬜ Aufgabe 2: ADR nennt Status, Kontext, Entscheidung und Konsequenzen
-- [ ] ⬜ Aufgabe 2: Implementierung mit Tests zur Spec vorhanden
-- [ ] ⬜ Aufgabe 3: AI-Workflow vorhanden (.github/workflows/)
-- [ ] ⬜ Aufgabe 3: AI-Modell wird im Workflow aufgerufen
-- [ ] ⬜ Aufgabe 3: Workflow reagiert auf Pull Requests
-- [ ] ⬜ Aufgabe 4: DOKUMENTATION.md vorhanden
-- [ ] ⬜ Aufgabe 4: Prompt Injection dokumentiert (Angriff und Verteidigung)
-- [ ] ⬜ Aufgabe 4: DOKUMENTATION.md hat ausreichend Inhalt (mind. 100 Wörter)
+- [ ] ⬜ Auftrag 1: Spec vorhanden (specs/*.md)
+- [ ] ⬜ Auftrag 1: Spec nennt Ziel, Anforderungen, Akzeptanzkriterien und Out of Scope
+- [ ] ⬜ Auftrag 1: Implementierung zur Spec vorhanden (discounts/*.py)
+- [ ] ⬜ Auftrag 1: Tests zu den Akzeptanzkriterien vorhanden (tests/test_*.py mit def test_)
+- [ ] ⬜ Auftrag 1: Tests laufen grün (pytest)
+- [ ] ⬜ Auftrag 1: Review des AI-Outputs dokumentiert (DOKUMENTATION.md, ohne Platzhalter, mind. 40 Wörter)
+- [ ] ⬜ Auftrag 2: Ergebnis je Angriff dokumentiert (ohne Platzhalter, ja/nein)
+- [ ] ⬜ Auftrag 2: Gehärteter System-Prompt als Codeblock (mind. 20 Wörter)
+- [ ] ⬜ Auftrag 2: Transfer auf den AI-Review-Bot — Angriff über den PR-Diff beschrieben
 
 Zusaetzlich manuell abgenommen (nicht automatisch geprueft):
 
-- Auftrag 4 im Kurs diskutiert und Gegenmassnahmen begruendet
+- Auftrag 2 im Recap diskutiert: welcher Angriff hat die Haertung ueberstanden?
 
 ## Abnahmekriterien selber pruefen
 
